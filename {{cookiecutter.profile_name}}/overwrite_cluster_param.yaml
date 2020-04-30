@@ -6,9 +6,11 @@ __default__:
   #account: ""
   #time:  # h
   #mem:  # GB
-  #threads:
-  queue: "{{cookiecutter.default_queue}}" # required
+  threads: 1
   nodes: 1
+  time: 720 
+  mem: 16000
+  highp: ""
 
 
 # specific parameters for certain rules, which need more time/memory

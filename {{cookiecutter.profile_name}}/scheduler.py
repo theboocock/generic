@@ -13,7 +13,6 @@ def eprint(*args, **kwargs):
 from snakemake.utils import read_job_properties
 
 
-
 jobscript = sys.argv[1]
 job_properties = read_job_properties(jobscript)
 
@@ -29,8 +28,7 @@ else:
 
 
 # don't overwrite default parameters if defined in rule (or config file)
-if ('threads' in job_properties) and ('time' not in cluster_param):
-    cluster_param["threads"] = job_properties["threads"]
+cluster_param["threads"] = job_properties["threads"]
 for res in ['time','mem']:
     if (res in job_properties["resources"]) and (res not in cluster_param):
         cluster_param[res] = job_properties["resources"][res]
@@ -38,7 +36,6 @@ for res in ['time','mem']:
 # time in hours
 if "time" in cluster_param:
     cluster_param["time"]=int(cluster_param["time"]*60)
-
 
 # check which system you are on and load command command_options
 key_mapping_file=os.path.join(os.path.dirname(__file__),"key_mapping.yaml")
@@ -49,20 +46,25 @@ command= command_options[command_options['system']]['command']
 key_mapping= command_options[command_options['system']]['key_mapping']
 
 # construct command:
+
+
 for  key in key_mapping:
     if key in cluster_param:
-        command+=" "
-        command+=key_mapping[key].format(cluster_param[key])
+        if key == "highp":
+            if "highp" == cluster_param[key]:
+                command+=" "
+                command+=key_mapping[key].format(cluster_param[key])
+        else: 
+            command+=" "
+            command+=key_mapping[key].format(cluster_param[key])
 
 command+=' {}'.format(jobscript)
-
 eprint("submit command: "+command)
-
 p = Popen(command.split(' '), stdout=PIPE, stderr=PIPE)
 output, error = p.communicate()
 if p.returncode != 0:
     raise Exception("Job can't be submitted\n"+output.decode("utf-8")+error.decode("utf-8"))
 else:
     res= output.decode("utf-8")
-    jobid= int(res.strip().split()[-1])
+    jobid= int(res.strip().split()[2])
     print(jobid)

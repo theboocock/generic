@@ -33,5 +33,13 @@ lsf:
     nodes: "-C {}"
 
 
+hoffman:
+    command: "qsub -V"
+    key_mapping:
+        highp: "-l {}" 
+        nodes: "-l nodes={}"
+        threads:  "-pe shared {}"
+        mem: "-l h_data={}"
+        time: "-l h_rt={}"
 
 # for other cluster systems see: https://slurm.schedmd.com/rosetta.pdf
